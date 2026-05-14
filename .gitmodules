@@ -1,6 +1,9 @@
 [submodule "backend"]
 	path = backend
-	url = https://github.com/ragtailor/com.ragtailor.api.git
+	url = https://github.com/amyshindev/com.ragwatson.api.git
 [submodule "docs"]
 	path = docs
-	url = https://github.com/ragtailor/com.ragtailor.docs.git
+	url = https://github.com/amyshindev/com.ragwatson.docs.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/amyshindev/com.ragwatson.www.git
