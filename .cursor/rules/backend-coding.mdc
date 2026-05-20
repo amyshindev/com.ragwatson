@@ -1,0 +1,29 @@
+---
+description: FastAPI 레이어·DB·API 규칙 — docs 필수 (backend)
+globs: backend/**/*
+alwaysApply: false
+---
+
+# Backend — 코딩 규칙 (docs 필수)
+
+구현·수정 **전에** 반드시 읽을 것:
+
+1. `docs/DevOps/Backend/BACKEND_RULES.md` — 레이어, DB, API, 보안
+2. `backend/.cursorrules` — 하네스(단순성, 정밀한 수정)
+3. 작업과 관련된 `docs/**` 도메인 문서가 있으면 함께 참고
+
+## 레이어
+
+`main.py` → Controller → Service → Repository → Model (`secom` 패턴).
+
+- 라우트: `DbSession`, `commit`/`rollback`만
+- 비즈니스·`HTTPException`: Service
+- SQL: Repository
+
+## 금지
+
+- `main.py`에 비즈니스 로직·SQL 직접 추가
+- `.env`·시크릿 커밋
+- 요청 범위 밖 리팩터
+
+상세·체크리스트: `docs/DevOps/Backend/BACKEND_RULES.md`

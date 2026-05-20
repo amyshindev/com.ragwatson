@@ -1,0 +1,37 @@
+---
+description: React useState 최소화, FormData 폼 패턴, UI state 객체 압축 (frontend)
+globs: frontend/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Frontend React — 상태·폼 규칙
+
+상세 문서: `docs/DevOps/Frontend/REACT_RULES.md`
+
+## useState
+
+- 필드마다 `useState` 여러 개 금지. 관련 상태는 **하나의 객체**로 (`{ submitting, message }` 등).
+- 폼 값은 가능하면 **비제어 + `name` + `FormData`**, 제출 시 한 번에 읽기.
+
+## 폼 제출 (필수 패턴)
+
+```tsx
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  const form = e.currentTarget // 또는 formRef.current
+  const formData = new FormData(form)
+  const formProps = Object.fromEntries(formData.entries())
+  // ...
+}
+```
+
+- `await` **이후** `e.currentTarget.reset()` 금지 (`null` 오류). `form.reset()` 또는 `formRef.current?.reset()` 사용.
+
+## UI
+
+- `alert()` 금지 → 인라인 메시지 (`type: "ok" | "err"`).
+- 기존 Maestro UI(backdrop, glass card, Tailwind) 유지. 요청 범위만 수정.
+
+## 리팩터 요청 시
+
+사용자가 “useState 객체로 압축”을 요청하면 위 문서·패턴으로 **해당 파일만** 리팩터한다.
