@@ -1,68 +1,82 @@
-# Backend 프로젝트 하네스 (에이전트 행동 규약)
+# Cursor Execution Harness
 
-`backend/`에서 코드를 작성·수정하기 **전에**, 반드시 `docs/` 아래 코딩 규칙을 읽고 그에 맞게 구현한다.  
-본 파일은 행동 하네스이고, **구체적인 백엔드 구현 규칙은 docs가 단일 소스**다.
-
----
-
-## 0. docs 필수 (MANDATORY — 구현 전)
-
-1. **`docs/DevOps/Backend/BACKEND_RULES.md`** — 레이어, DB, API, 로깅, 실행 방법 (항상)
-2. **`docs/DevOps/README.md`** — Frontend/Backend 규칙 인덱스
-3. **도메인 문서** — 작업과 관련된 `docs/**` (예: `docs/maestro개발/`, `docs/타이타닉개발/`)가 있으면 함께 읽기
-4. **프론트엔드까지 건드릴 때** — `docs/DevOps/Frontend/REACT_RULES.md`
-
-규칙 문서와 본 하네스가 충돌하면, **도메인·구현 규칙은 docs**, **수정 범위·단순성은 본 파일**을 우선한다.
-
-| 주제 | 경로 |
-|------|------|
-| 백엔드 구현 규칙 | `docs/DevOps/Backend/BACKEND_RULES.md` |
-| 프론트엔드 규칙 | `docs/DevOps/Frontend/REACT_RULES.md` |
-| DevOps 인덱스 | `docs/DevOps/README.md` |
-| Cursor 자동 규칙 | `.cursor/rules/backend-coding.mdc` |
-
-**검증:** diff가 위 docs의 레이어·패턴을 따르는지 스스로 확인한다.
+**Canonical source:** [`CLAUDE.md`](CLAUDE.md). This file is the always-injected execution summary. On conflict, the **Architectural Blueprint** in `CLAUDE.md` takes precedence over all subordinate rules below.
 
 ---
 
-## 1. 구현 전 사고 (Think Before Coding)
+## TOP-LEVEL: Architectural Blueprint
 
-- **가정하지 말 것.** 불확실하면 질문한다.
-- **모호함을 숨기지 말 것.** 해석이 여러 개면 임의로 고르지 말고 대안을 나열한다.
-- **트레이드오프를 말할 것.** 더 단순한 방법이 있으면 제안한다. 타당하면 사용자 요청에 푸시백해도 된다.
-- **막히면 멈출 것.** 무엇이 불분명한지 구체적으로 짚고 질문한 뒤에만 구현을 진행한다.
+Aligned with [`CLAUDE.md`](CLAUDE.md) § Architectural Blueprint & Core Rules.
 
-## 2. 단순성 우선 (Simplicity First)
+### 1. Core Paradigm: Harness Engineering & PKS
+- Build programmatic scaffolding where LLM agents and human workflows interact seamlessly (Karpathy Harness Engineering).
+- Treat personal markdown wiki data and LLM context/embedding pipelines as first-class domain citizens (PKS).
 
-- 요청 범위를 넘는 기능·추상화·설정 가능성을 추가하지 않는다.
-- 일회성 코드용 추상화 계층을 만들지 않는다.
-- 현실적으로 불가능한 시나리오만을 위한 방어 코드를 넣지 않는다.
-- 같은 목표를 더 짧은 코드로 달성할 수 있으면 다시 쓴다.
-- **자문:** “시니어 엔지니어가 이걸 과하게 복잡하다고 할까?” 그렇다면 단순화한다.
+### 2. Design Principles & Architecture
+- **SOLID:** Maximize SRP and ISP; decouple domain logic from LLM infrastructure.
+- **Hexagonal + Clean + DDD:**
+  - **Domain:** Pure models, value objects, repository interfaces — ZERO framework, DB, or LLM SDK dependencies.
+  - **Application:** Orchestrates use cases (e.g., harness workflows, wiki indexing).
+  - **Infrastructure/Adapters:** LLM clients, vector databases, local file systems.
 
-## 3. 정밀한 수정 (Surgical Changes)
-
-- 요청과 무관한 인접 코드·주석·포맷을 “손보지” 않는다.
-- 망가지지 않은 부분은 리팩터링하지 않는다.
-- 기존 코드 스타일·관례를 따른다(본인 취향보다 우선).
-- 작업과 무관한 데드 코드는 **보고만** 하고 삭제하지 않는다.
-- **네 변경**으로 불필요해진 import·변수·함수만 제거한다. 원래 있던 데드 코드는 요청 없이 지우지 않는다.
-- **검증:** diff의 모든 변경 줄이 사용자 요청과 직접 연결되어야 한다.
-
-## 4. 목표 중심 실행 (Goal-Driven Execution)
-
-- 작업을 시작하기 전에 **검증 가능한 성공 기준**을 정한다.
-- 모호한 지시는 구체 목표로 바꾼다. 예: “유효성 추가” → 잘못된 입력 테스트 작성 후 통과; “버그” → 재현 테스트 후 통과; “리팩터링” → 전후 테스트 통과.
-- 단계가 여러 개면 짧게 계획을 밝히고, 각 단계마다 무엇으로 검증할지 적는다.
-- “일단 돌아가게”만 두지 말고, 기준을 만족할 때까지 루프한다.
+### 3. Strict Module Pathing (@backend)
+- Omit `backend` and `apps` from internal path roots under `@backend`.
+- Core system modules must begin with `backend.core.` (e.g., `backend.core.domain.models...`).
 
 ---
 
-## 하네스 점검 (스스로 확인)
+## SUBORDINATE: Mandatory Docs (before `backend/` changes)
 
-- `docs/DevOps/Backend/BACKEND_RULES.md`의 레이어·DB 패턴을 지켰는가.
-- 불필요한 diff가 줄었는가.
-- 과설계로 되돌리는 일이 줄었는가.
-- 구현 전 질문·트레이드오프 공개가 늘었는가.
+Before writing or editing code under `backend/`, read applicable rules under `docs/`:
 
-배경·출처·긴 설명은 `backend/CLAUDE.md`를 본다.
+1. `docs/DevOps/Backend/BACKEND_RULES.md` — layers, DB, API, logging, execution
+2. `docs/DevOps/README.md` — Frontend/Backend rules index
+3. Domain-specific `docs/**` when the task touches that domain
+4. When touching frontend: `docs/DevOps/Frontend/REACT_RULES.md`
+
+If subordinate harness guidance conflicts with `docs/` implementation rules, **`docs/` wins for domain implementation**; the Architectural Blueprint wins for structure and pathing.
+
+**Verification:** Confirm the diff follows `docs/` layer and DB patterns.
+
+---
+
+## SUBORDINATE: Agent Behavioral Guidelines
+
+Full detail: [`CLAUDE.md`](CLAUDE.md) § Agent Behavioral Guidelines.
+
+1. **Think Before Coding** — State assumptions; surface ambiguity and trade-offs; stop and ask when unclear.
+2. **Simplicity First** — Request scope only; no speculative abstractions or defensive code for unlikely edges.
+3. **Surgical Changes** — Every changed line must tie to the request; clean up only what your change orphans.
+4. **Goal-Driven Execution** — Define verifiable success criteria; loop until met.
+
+> **Trade-off:** Favor carefulness over speed. Trivial tasks may use reasonable judgment.
+
+---
+
+## SUBORDINATE: Harness — What We Counteract
+
+| Agent tendency | Harness response |
+|----------------|------------------|
+| Silent assumptions | Think before coding: expose assumptions, ambiguity, trade-offs |
+| Over-generalization / over-abstraction | Simplicity first: no out-of-scope code |
+| Bloated diffs | Surgical changes: touch only what the request requires |
+| Weak "done" criteria | Goal-driven execution: verifiable success criteria |
+
+---
+
+## SUBORDINATE: Self-Check Before Submitting
+
+- Does the diff avoid changes unrelated to the request?
+- Did questions and trade-offs appear before implementation when needed?
+- Is success criteria stated as reproducible action (test, build, scenario)?
+- Does the change respect `CLAUDE.md` architecture, layer boundaries, and `@backend` pathing?
+
+---
+
+## Related Documents
+
+| Artifact | Role |
+|----------|------|
+| [`CLAUDE.md`](CLAUDE.md) | Canonical blueprint, behavioral guidelines, references |
+| [`CURSOR..md`](CURSOR..md) | Design rationale, onboarding, harness quality review |
+| `.cursor/rules/*.mdc` | Scoped rules when matching globs apply (e.g., `backend/**`, `frontend/**`) |

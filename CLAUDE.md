@@ -1,82 +1,98 @@
-# LLM 코딩 행동 지침 (Karpathy Guidelines)
+# ARCHITECTURAL BLUEPRINT & CORE RULES (TOP-LEVEL)
 
-안드레 카파시가 LLM 코딩에서 자주 보이는 실패 패턴을 정리한 [관찰](https://x.com/karpathy/status/2015883857489522876)을 바탕으로, 일반적인 코딩 실수를 줄이기 위한 행동 지침이다. 프로젝트별 지침이 있으면 본 문서와 병합해 사용한다.
+## 1. Core Paradigm: Harness Engineering & PKS
+- **Karpathy's Harness Engineering:** The system must be built as a programmatic scaffolding (harness) where LLM agents and human workflows interact seamlessly.
+- **Wiki + LLM Personal Knowledge System (PKS):** Personal markdown-based wiki data and LLM context/embedding pipelines must be treated as first-class domain citizens.
 
-> **트레이드오프:** 속도보다는 신중함에 무게를 둔다. 사소한 작업은 상황에 맞게 판단한다.
+## 2. Design Principles & Architecture
+- **Strict SOLID Compliance:** Every module, class, and function must rigorously adhere to SOLID principles. Maximize SRP (Single Responsibility) and ISP (Interface Segregation) to decouple domain logic from LLM infrastructure.
+- **Hexagonal + Clean + DDD (Domain-Driven Design):**
+  - **Domain Layer:** Must contain pure domain models, value objects, and repository interfaces. Absolutely ZERO external framework, DB, or LLM SDK dependencies.
+  - **Application Layer:** Orchestrates use cases (e.g., executing a harness workflow, indexing wiki files).
+  - **Infrastructure/Adapters:** Implements concrete LLM clients, vector databases, and local file systems.
+
+## 3. Strict Module Pathing Rules (@backend)
+- **Root Omission:** For all internal paths under @backend, completely omit `backend` and `apps` directories from the root structure.
+- **Explicit Core Entry:** The absolute module path for the core system must explicitly begin with `backend.core.` (e.g., `backend.core.domain.models...`).
 
 ---
 
-## 1. 구현 전 사고 (Think Before Coding)
+# Agent Behavioral Guidelines
 
-**가정하지 않는다. 모호함을 숨기지 않는다. 트레이드오프를 드러낸다.**
+These practices are **subordinate** to the Architectural Blueprint above. When behavioral guidance conflicts with core architecture, SOLID/DDD layering, or module pathing rules, the top-level blueprint takes precedence.
 
-구현에 들어가기 전에 다음을 지킨다.
+> **Trade-off:** Favor carefulness over speed. Trivial tasks may be handled with reasonable judgment.
 
-- 자신의 가정을 명시적으로 말한다. 불확실하면 질문한다.
-- 해석이 여러 가지면 임의로 고르지 말고 대안을 제시한다.
-- 더 단순한 방법이 있으면 말한다. 타당하면 요청에 정면으로 반대(푸시백)해도 된다.
-- 불분명하면 멈춘다. 무엇이 혼란스러운지 구체적으로 짚고 질문한다.
+## 1. Think Before Coding
 
-## 2. 단순성 우선 (Simplicity First)
+**Do not assume. Do not hide ambiguity. Surface trade-offs.**
 
-**문제를 푸는 데 필요한 최소한의 코드만 쓴다. 추측성 코드는 넣지 않는다.**
+Before implementing:
 
-- 요청받은 것 이상의 기능은 넣지 않는다.
-- 일회성 코드를 위해 추상화 계층을 만들지 않는다.
-- 요청되지 않은 “유연성”이나 “설정 가능성”은 고려하지 않는다.
-- 현실적으로 일어날 수 없는 시나리오를 위한 예외 처리는 하지 않는다.
-- 200줄로 쓸 수 있는 것을 50줄로 줄일 수 있으면 다시 쓴다.
+- State your assumptions explicitly. Ask when uncertain.
+- If multiple interpretations exist, present alternatives instead of choosing arbitrarily.
+- If a simpler approach exists, say so. Push back on the request when justified.
+- When unclear, stop. Identify specifically what is confusing and ask questions.
 
-**자문:** “시니어 엔지니어가 보기에 이 코드가 지나치게 복잡하다고 할까?” 그렇다면 단순화한다.
+## 2. Simplicity First
 
-## 3. 정밀한 수정 (Surgical Changes)
+**Write only the minimum code required to solve the problem. Do not add speculative code.**
 
-**꼭 필요한 곳만 건드린다. 정리는 자기가 만든 잔여물만 한다.**
+- Do not add features beyond what was requested.
+- Do not create abstraction layers for one-off code.
+- Do not add unrequested "flexibility" or configurability.
+- Do not handle edge cases for scenarios that are unrealistic in practice.
+- If something written in 200 lines can be written in 50, rewrite it.
 
-기존 코드를 고칠 때:
+**Self-check:** "Would a senior engineer consider this code overly complex?" If yes, simplify.
 
-- 인접한 코드·주석·포맷을 “개선”하려 들지 않는다.
-- 망가지지 않은 부분은 리팩터링하지 않는다.
-- 본인 스타일과 달라도 기존 스타일을 따른다.
-- 작업과 무관한 데드 코드를 발견하면 **언급만** 하고, 임의로 삭제하지 않는다.
+## 3. Surgical Changes
 
-내 변경으로 쓰이지 않게 된 것이 있으면:
+**Touch only what is necessary. Clean up only what your change leaves behind.**
 
-- **내 변경** 때문에 불필요해진 import·변수·함수는 제거한다.
-- 원래부터 있던 데드 코드는 요청이 없으면 그대로 둔다.
+When modifying existing code:
 
-**검증:** 바뀐 모든 줄이 사용자 요청과 직접적으로 연결되어야 한다.
+- Do not "improve" adjacent code, comments, or formatting.
+- Do not refactor code that is not broken.
+- Follow existing style even when it differs from your own.
+- If you find dead code unrelated to the task, **mention it only** — do not delete it without a request.
 
-## 4. 목표 중심 실행 (Goal-Driven Execution)
+For leftovers caused by your change:
 
-**성공 기준을 정의하고, 검증될 때까지 반복한다.**
+- Remove imports, variables, and functions made unnecessary **by your change**.
+- Leave pre-existing dead code in place unless explicitly asked to remove it.
 
-모호한 작업을 검증 가능한 목표로 바꾼다.
+**Verification:** Every changed line must connect directly to the user's request.
 
-- “유효성 검사 추가” → “잘못된 입력에 대한 테스트를 쓰고, 통과시킨다”
-- “버그 수정” → “재현 테스트를 쓰고, 통과시킨다”
-- “X 리팩터링” → “전후로 테스트가 통과하는지 확인한다”
+## 4. Goal-Driven Execution
 
-여러 단계일 때는 짧은 계획을 밝힌다.
+**Define success criteria and loop until they are met.**
+
+Turn vague tasks into verifiable goals:
+
+- "Add validation" → "Write tests for invalid input and make them pass"
+- "Fix bug" → "Write a reproduction test and make it pass"
+- "Refactor X" → "Confirm tests pass before and after"
+
+For multi-step work, state a short plan:
 
 ```text
-1. [단계] → 검증: [확인 사항]
-2. [단계] → 검증: [확인 사항]
-3. [단계] → 검증: [확인 사항]
+1. [step] → verify: [what to check]
+2. [step] → verify: [what to check]
+3. [step] → verify: [what to check]
 ```
 
-성공 기준이 분명해야 같은 루프를 돌며 독립적으로 진행할 수 있다. “작동하게만 만들기”처럼 약한 기준은 계속 되묻게 만든다.
+Success criteria must be explicit enough to iterate independently. Weak criteria like "just make it work" invite repeated clarification.
 
 ---
 
-## 지침이 잘 먹히는지 확인하는 방법
+## How to Verify These Guidelines Work
 
-- diff에 불필요한 변경이 줄었는지
-- 복잡해서 다시 짜는 일이 줄었는지
-- 구현 전 질문으로 의사결정이 더 명확해졌는지
+- Unnecessary changes in diffs decrease
+- Rework caused by over-complexity decreases
+- Pre-implementation questions lead to clearer decisions
 
-## 출처
+## References
 
-- [Andrej Karpathy (X)](https://x.com/karpathy/status/2015883857489522876) — 원 관찰
-- 커뮤니티 정리 예: [karpathy-guidelines (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md)
-- 한국어 요약 참고: [티스토리 글](https://americanopeople.tistory.com/514)
+- [Andrej Karpathy (X)](https://x.com/karpathy/status/2015883857489522876) — original observations
+- Community summary: [karpathy-guidelines (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md)
