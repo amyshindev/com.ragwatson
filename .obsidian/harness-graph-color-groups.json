@@ -1,0 +1,16 @@
+[
+  {
+    "query": "path:frontend",
+    "color": {
+      "a": 1,
+      "rgb": 5873999
+    }
+  },
+  {
+    "query": "path:backend",
+    "color": {
+      "a": 1,
+      "rgb": 5142951
+    }
+  }
+]

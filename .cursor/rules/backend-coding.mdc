@@ -8,9 +8,11 @@ alwaysApply: false
 
 구현·수정 **전에** 반드시 읽을 것:
 
-1. `docs/DevOps/Backend/BACKEND_RULES.md` — 레이어, DB, API, 보안
-2. `backend/.cursorrules` — 하네스(단순성, 정밀한 수정)
-3. 작업과 관련된 `docs/**` 도메인 문서가 있으면 함께 참고
+1. `backend/CLAUDE.md` — 모듈 경로, `apps/` 시블링, 헥사곤 레이어
+2. `docs/DevOps/Backend/BACKEND_RULES.md` — 레이어, DB, API, 보안
+3. `backend/.cursorrules` — 하네스(단순성, 정밀한 수정)
+4. 해당 앱 작업 시 `backend/apps/{app}/.docs/CLAUDE.md` (예: `titanic/_docs/CLAUDE.md`)
+5. 작업과 관련된 `docs/**` 도메인 문서가 있으면 함께 참고
 
 ## 레이어
 

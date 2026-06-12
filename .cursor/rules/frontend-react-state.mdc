@@ -6,7 +6,8 @@ alwaysApply: false
 
 # Frontend React — 상태·폼 규칙
 
-상세 문서: `docs/DevOps/Frontend/REACT_RULES.md`
+상세 문서: `frontend/CLAUDE.md`, `docs/DevOps/Frontend/REACT_RULES.md`
+도메인 페이지: `backend/apps/{app}/.docs/CLAUDE.md` (해당 시)
 
 ## useState
 

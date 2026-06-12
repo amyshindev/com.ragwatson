@@ -1,1 +1,6 @@
-{}
+{
+  "enabledCssSnippets": [
+    "hide-cache",
+    "harness-doc-links"
+  ]
+}

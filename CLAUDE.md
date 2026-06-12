@@ -1,25 +1,66 @@
+---
+tags:
+  - harness/claude-root
+graph-group: claude-root
+---
+
 # ARCHITECTURAL BLUEPRINT & CORE RULES (TOP-LEVEL)
 
+Canonical source for the **entire monorepo**. Scoped stacks and domains link out below — do not duplicate their detail here.
+
+> **Precedence:** This file wins over `.cursorrules`, `CURSOR..md`, and child `CLAUDE.md` files on **structure, SOLID/DDD boundaries, and cross-repo concerns**. Child files win on **stack- or domain-specific implementation** when this file is silent.
+
+---
+
 ## 1. Core Paradigm: Harness Engineering & PKS
-- **Karpathy's Harness Engineering:** The system must be built as a programmatic scaffolding (harness) where LLM agents and human workflows interact seamlessly.
-- **Wiki + LLM Personal Knowledge System (PKS):** Personal markdown-based wiki data and LLM context/embedding pipelines must be treated as first-class domain citizens.
+
+- **Karpathy's Harness Engineering:** Build programmatic scaffolding where LLM agents and human workflows interact seamlessly.
+- **Wiki + LLM Personal Knowledge System (PKS):** Personal markdown wiki data and LLM context/embedding pipelines are first-class domain citizens.
+
+---
 
 ## 2. Design Principles & Architecture
-- **Strict SOLID Compliance:** Every module, class, and function must rigorously adhere to SOLID principles. Maximize SRP (Single Responsibility) and ISP (Interface Segregation) to decouple domain logic from LLM infrastructure.
-- **Hexagonal + Clean + DDD (Domain-Driven Design):**
-  - **Domain Layer:** Must contain pure domain models, value objects, and repository interfaces. Absolutely ZERO external framework, DB, or LLM SDK dependencies.
-  - **Application Layer:** Orchestrates use cases (e.g., executing a harness workflow, indexing wiki files).
-  - **Infrastructure/Adapters:** Implements concrete LLM clients, vector databases, and local file systems.
 
-## 3. Strict Module Pathing Rules (@backend)
-- **Root Omission:** For all internal paths under @backend, completely omit `backend` and `apps` directories from the root structure.
-- **Explicit Core Entry:** The absolute module path for the core system must explicitly begin with `backend.core.` (e.g., `backend.core.domain.models...`).
+- **Strict SOLID Compliance:** Maximize SRP and ISP. Decouple domain logic from LLM, DB, and UI infrastructure.
+- **Hexagonal + Clean + DDD (summary):**
+  - **Domain:** Pure models, value objects, repository **interfaces** — no framework, DB, or LLM SDK imports.
+  - **Application:** Use cases / interactors orchestrate workflows.
+  - **Adapters:** HTTP routers, ORM, PG repositories, external APIs.
+
+---> **Backend layer layout, `PYTHONPATH`, and `@backend` import rules** live in [`backend/CLAUDE.md`](backend/CLAUDE.md).
+
+---> **React / Next.js UI rules** live in [`frontend/CLAUDE.md`](frontend/CLAUDE.md).
+
+---> **Per-domain app rules** (sibling apps under `backend/apps/`) live in each app's `.docs/CLAUDE.md`, e.g. [`backend/apps/titanic/_docs/CLAUDE.md`](backend/apps/titanic/_docs/CLAUDE.md).
+
+---
+
+## 3. Document Hierarchy
+
+| Level | File | When to read |
+|-------|------|----------------|
+| **Repository root** | [`CLAUDE.md`](CLAUDE.md) (this file) | Always — blueprint + agent behavior |
+| **Backend** | [`backend/CLAUDE.md`](backend/CLAUDE.md) | Any change under `backend/` |
+| **Frontend** | [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | Any change under `frontend/` |
+| **Domain app** | `backend/apps/{app}/.docs/CLAUDE.md` | Work inside that app package (e.g. `titanic`, `audio`, `user`) |
+
+**Sibling app pattern:** `backend/apps/` grows by adding peer packages (`titanic`, `audio`, `user`, …). Each app owns its hexagonal tree and optional `.docs/CLAUDE.md`. Shared infrastructure stays in `backend/core/`, `backend/apps/db/`, etc.
+
+**Implementation playbooks (human + agent):**
+
+| Stack | Deep rules |
+|-------|------------|
+| Backend | [`docs/DevOps/Backend/BACKEND_RULES.md`](docs/DevOps/Backend/BACKEND_RULES.md) |
+| Frontend | [`docs/DevOps/Frontend/REACT_RULES.md`](docs/DevOps/Frontend/REACT_RULES.md) |
+| Index | [`docs/DevOps/README.md`](docs/DevOps/README.md) |
+
+**Harness execution summary:** [`.cursorrules`](.cursorrules) · **Design rationale:** [`CURSOR..md`](CURSOR..md)
 
 ---
 
 # Agent Behavioral Guidelines
 
-These practices are **subordinate** to the Architectural Blueprint above. When behavioral guidance conflicts with core architecture, SOLID/DDD layering, or module pathing rules, the top-level blueprint takes precedence.
+Subordinate to the Architectural Blueprint above. When behavioral guidance conflicts with core architecture or layering, the blueprint wins.
 
 > **Trade-off:** Favor carefulness over speed. Trivial tasks may be handled with reasonable judgment.
 
@@ -82,7 +123,7 @@ For multi-step work, state a short plan:
 3. [step] → verify: [what to check]
 ```
 
-Success criteria must be explicit enough to iterate independently. Weak criteria like "just make it work" invite repeated clarification.
+Success criteria must be explicit enough to iterate independently.
 
 ---
 
@@ -94,5 +135,8 @@ Success criteria must be explicit enough to iterate independently. Weak criteria
 
 ## References
 
-- [Andrej Karpathy (X)](https://x.com/karpathy/status/2015883857489522876) — original observations
-- Community summary: [karpathy-guidelines (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md)
+- [Andrej Karpathy (X)](https://x.com/karpathy/status/2015883857489522876)
+- [karpathy-guidelines (GitHub)](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md)
+- Backend scope: [`backend/CLAUDE.md`](backend/CLAUDE.md)
+- Frontend scope: [`frontend/CLAUDE.md`](frontend/CLAUDE.md)
+- Titanic domain: [`backend/apps/titanic/_docs/CLAUDE.md`](backend/apps/titanic/_docs/CLAUDE.md)

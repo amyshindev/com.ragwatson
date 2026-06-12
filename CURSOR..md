@@ -1,3 +1,9 @@
+---
+tags:
+  - harness/cursor
+graph-group: cursor
+---
+
 # Cursor Harness Engineering
 
 This document explains **why** the repository's Cursor harness is structured as it is, and how to review it. The philosophy follows Andrej Karpathy's [observations on LLM coding failures](https://x.com/karpathy/status/2015883857489522876) and [Karpathy Guidelines](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md), integrated with the **Architectural Blueprint** in [`CLAUDE.md`](CLAUDE.md).
@@ -12,8 +18,12 @@ Rules are split by role. **Never contradict** the top-level Architectural Bluepr
 
 | Artifact | Role |
 |----------|------|
-| [`CLAUDE.md`](CLAUDE.md) | **Canonical source of truth.** Architectural Blueprint (Harness Engineering, PKS, SOLID/DDD, module pathing) and Agent Behavioral Guidelines. |
-| [`.cursorrules`](.cursorrules) | **Always-injected execution harness.** Condensed imperative rules derived from `CLAUDE.md`. |
+| [`CLAUDE.md`](CLAUDE.md) | **Canonical source of truth.** Blueprint + Agent Behavioral Guidelines. |
+| [`backend/CLAUDE.md`](backend/CLAUDE.md) | Backend module pathing, `apps/` siblings, hexagonal layers. |
+| [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | Next.js layout, API integration. |
+| `backend/apps/{app}/.docs/CLAUDE.md` | Per-domain rules (e.g. [`titanic`](backend/apps/titanic/_docs/CLAUDE.md)). |
+| [`.cursorrules`](.cursorrules) | **Root execution harness** — links scoped `.cursorrules` below. |
+| `backend/.cursorrules`, `frontend/.cursorrules`, `apps/*/.docs/.cursorrules` | Scoped execution summaries per stack/domain. |
 | This file (`CURSOR..md`) | **Design & review lens.** What the harness counters, quality checks, onboarding. |
 | `.cursor/rules/*.mdc` | **Scoped globs.** Backend/frontend patterns when matching paths are edited. |
 | `docs/DevOps/**` | **Implementation rules** (layers, DB, API, React). Mandatory before domain coding. |

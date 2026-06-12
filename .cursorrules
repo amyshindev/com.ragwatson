@@ -1,42 +1,46 @@
-# Cursor Execution Harness
+# Cursor Execution Harness (Repository Root)
 
-**Canonical source:** [`CLAUDE.md`](CLAUDE.md). This file is the always-injected execution summary. On conflict, the **Architectural Blueprint** in `CLAUDE.md` takes precedence over all subordinate rules below.
+**Canonical source:** [`CLAUDE.md`](CLAUDE.md). This file is the always-injected execution summary.
 
----
-
-## TOP-LEVEL: Architectural Blueprint
-
-Aligned with [`CLAUDE.md`](CLAUDE.md) § Architectural Blueprint & Core Rules.
-
-### 1. Core Paradigm: Harness Engineering & PKS
-- Build programmatic scaffolding where LLM agents and human workflows interact seamlessly (Karpathy Harness Engineering).
-- Treat personal markdown wiki data and LLM context/embedding pipelines as first-class domain citizens (PKS).
-
-### 2. Design Principles & Architecture
-- **SOLID:** Maximize SRP and ISP; decouple domain logic from LLM infrastructure.
-- **Hexagonal + Clean + DDD:**
-  - **Domain:** Pure models, value objects, repository interfaces — ZERO framework, DB, or LLM SDK dependencies.
-  - **Application:** Orchestrates use cases (e.g., harness workflows, wiki indexing).
-  - **Infrastructure/Adapters:** LLM clients, vector databases, local file systems.
-
-### 3. Strict Module Pathing (@backend)
-- Omit `backend` and `apps` from internal path roots under `@backend`.
-- Core system modules must begin with `backend.core.` (e.g., `backend.core.domain.models...`).
+> **Precedence:** [`CLAUDE.md`](CLAUDE.md) Architectural Blueprint > scoped `.cursorrules` > `docs/DevOps/**` for implementation detail.
 
 ---
 
-## SUBORDINATE: Mandatory Docs (before `backend/` changes)
+## Document Hierarchy (read before coding)
 
-Before writing or editing code under `backend/`, read applicable rules under `docs/`:
+| Scope | CLAUDE.md | `.cursorrules` |
+|-------|-----------|----------------|
+| **Root** | [`CLAUDE.md`](CLAUDE.md) | this file |
+| **Backend** | [`backend/CLAUDE.md`](backend/CLAUDE.md) | [`backend/.cursorrules`](backend/.cursorrules) |
+| **Frontend** | [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | [`frontend/.cursorrules`](frontend/.cursorrules) |
+| **Domain app** | `backend/apps/{app}/.docs/CLAUDE.md` | `backend/apps/{app}/.docs/.cursorrules` |
 
-1. `docs/DevOps/Backend/BACKEND_RULES.md` — layers, DB, API, logging, execution
-2. `docs/DevOps/README.md` — Frontend/Backend rules index
-3. Domain-specific `docs/**` when the task touches that domain
-4. When touching frontend: `docs/DevOps/Frontend/REACT_RULES.md`
+Sibling apps under `backend/apps/` each get their own `.docs/` pair (e.g. [`titanic`](backend/apps/titanic/_docs/CLAUDE.md)).
 
-If subordinate harness guidance conflicts with `docs/` implementation rules, **`docs/` wins for domain implementation**; the Architectural Blueprint wins for structure and pathing.
+---
 
-**Verification:** Confirm the diff follows `docs/` layer and DB patterns.
+## TOP-LEVEL: Architectural Blueprint (summary)
+
+Aligned with [`CLAUDE.md`](CLAUDE.md) § Architectural Blueprint.
+
+1. **Harness Engineering & PKS** — programmatic agent/human scaffolding; wiki + LLM as first-class data.
+2. **SOLID + Hexagonal + DDD** — domain pure; application orchestrates; adapters own I/O.
+
+---> **Backend module pathing** → [`backend/CLAUDE.md`](backend/CLAUDE.md)
+
+---> **Frontend React rules** → [`frontend/CLAUDE.md`](frontend/CLAUDE.md) + [`docs/DevOps/Frontend/REACT_RULES.md`](docs/DevOps/Frontend/REACT_RULES.md)
+
+---> **Domain app rules** → `backend/apps/{app}/.docs/CLAUDE.md`
+
+---
+
+## SUBORDINATE: Mandatory Docs
+
+| Task | Read first |
+|------|------------|
+| `backend/**` | [`backend/CLAUDE.md`](backend/CLAUDE.md), [`docs/DevOps/Backend/BACKEND_RULES.md`](docs/DevOps/Backend/BACKEND_RULES.md), app `.docs/CLAUDE.md` if applicable |
+| `frontend/**` | [`frontend/CLAUDE.md`](frontend/CLAUDE.md), [`docs/DevOps/Frontend/REACT_RULES.md`](docs/DevOps/Frontend/REACT_RULES.md) |
+| Index | [`docs/DevOps/README.md`](docs/DevOps/README.md) |
 
 ---
 
@@ -44,39 +48,26 @@ If subordinate harness guidance conflicts with `docs/` implementation rules, **`
 
 Full detail: [`CLAUDE.md`](CLAUDE.md) § Agent Behavioral Guidelines.
 
-1. **Think Before Coding** — State assumptions; surface ambiguity and trade-offs; stop and ask when unclear.
-2. **Simplicity First** — Request scope only; no speculative abstractions or defensive code for unlikely edges.
-3. **Surgical Changes** — Every changed line must tie to the request; clean up only what your change orphans.
-4. **Goal-Driven Execution** — Define verifiable success criteria; loop until met.
-
-> **Trade-off:** Favor carefulness over speed. Trivial tasks may use reasonable judgment.
+1. **Think Before Coding** — assumptions, ambiguity, trade-offs; stop and ask when unclear.
+2. **Simplicity First** — request scope only; no speculative abstractions.
+3. **Surgical Changes** — every changed line ties to the request.
+4. **Goal-Driven Execution** — verifiable success criteria; loop until met.
 
 ---
 
-## SUBORDINATE: Harness — What We Counteract
+## Self-Check Before Submitting
 
-| Agent tendency | Harness response |
-|----------------|------------------|
-| Silent assumptions | Think before coding: expose assumptions, ambiguity, trade-offs |
-| Over-generalization / over-abstraction | Simplicity first: no out-of-scope code |
-| Bloated diffs | Surgical changes: touch only what the request requires |
-| Weak "done" criteria | Goal-driven execution: verifiable success criteria |
+- Unrelated diff lines avoided?
+- Correct scoped `CLAUDE.md` / `.cursorrules` followed for the path edited?
+- Layer boundaries and pathing respected?
+- Success criteria reproducible (test, build, scenario)?
 
 ---
 
-## SUBORDINATE: Self-Check Before Submitting
-
-- Does the diff avoid changes unrelated to the request?
-- Did questions and trade-offs appear before implementation when needed?
-- Is success criteria stated as reproducible action (test, build, scenario)?
-- Does the change respect `CLAUDE.md` architecture, layer boundaries, and `@backend` pathing?
-
----
-
-## Related Documents
+## Related
 
 | Artifact | Role |
 |----------|------|
-| [`CLAUDE.md`](CLAUDE.md) | Canonical blueprint, behavioral guidelines, references |
-| [`CURSOR..md`](CURSOR..md) | Design rationale, onboarding, harness quality review |
-| `.cursor/rules/*.mdc` | Scoped rules when matching globs apply (e.g., `backend/**`, `frontend/**`) |
+| [`CLAUDE.md`](CLAUDE.md) | Blueprint + behavioral guidelines |
+| [`CURSOR..md`](CURSOR..md) | Design rationale, harness review |
+| `.cursor/rules/*.mdc` | Glob-scoped rules (`backend/**`, `frontend/**`) |
