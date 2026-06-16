@@ -1,4 +1,22 @@
 services:
+  # 로컬 Docker 개발용 PostgreSQL (Neon .env 비밀번호 오류 시에도 백엔드 기동)
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ragwatson
+      POSTGRES_PASSWORD: ragwatson
+      POSTGRES_DB: ragwatson
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ragwatson -d ragwatson"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   # 백엔드 서비스 설정
   backend:
     build:
@@ -14,8 +32,13 @@ services:
     environment:
       - ENV_FILE=.env
       - PYTHONPATH=.:apps
+      # env_file의 Neon URL보다 우선 — Docker Compose 로컬 DB 사용
+      - DATABASE_URL=postgresql://ragwatson:ragwatson@db:5432/ragwatson
     env_file:
       - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
 
   # 프론트엔드 서비스 설정
   frontend:
@@ -34,3 +57,6 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
