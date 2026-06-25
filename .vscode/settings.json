@@ -1,3 +1,15 @@
 {
-  "python.analysis.diagnosticMode": "workspace"
+  "python.analysis.diagnosticMode": "workspace",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  "ruff.configuration": "${workspaceFolder}/backend/pyproject.toml",
+  "ruff.importStrategy": "fromEnvironment",
+  "ruff.lint.run": "onSave",
+  "ruff.organizeImports": true
 }

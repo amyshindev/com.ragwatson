@@ -1,0 +1,13 @@
+# Backend Python: Ruff lint + format (config: backend/pyproject.toml)
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        name: ruff check (backend)
+        files: ^backend/
+        args: [--config, backend/pyproject.toml]
+      - id: ruff-format
+        name: ruff format (backend)
+        files: ^backend/
+        args: [--config, backend/pyproject.toml]
