@@ -1,8 +1,8 @@
 services:
-  # 로컬 Docker 개발용 PostgreSQL (Neon .env 비밀번호 오류 시에도 백엔드 기동)
-  db:
-    image: postgres:16-alpine
-    container_name: postgres_db
+  # pgvector — PostgreSQL + vector extension (relational + embedding storage)
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: pgvector_db
     environment:
       POSTGRES_USER: ragwatson
       POSTGRES_PASSWORD: ragwatson
@@ -15,7 +15,46 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgvector_data:/var/lib/postgresql/data
+      - ./docker/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+  # Redis — cache / session / queue
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Neo4j — graph / ontology
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: neo4j
+    ports:
+      - "7474:7474"  # Browser / HTTP
+      - "7687:7687"  # Bolt
+    environment:
+      - NEO4J_AUTH=neo4j/ragwatson
+      - NEO4J_PLUGINS=["apoc"]
+      - TZ=Asia/Seoul
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
   # 백엔드 서비스 설정
   backend:
@@ -25,6 +64,8 @@ services:
     container_name: fastapi_backend
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./backend:/app
       - /app/__pycache__
@@ -32,12 +73,22 @@ services:
     environment:
       - ENV_FILE=.env
       - PYTHONPATH=.:apps
-      # env_file의 Neon URL보다 우선 — Docker Compose 로컬 DB 사용
-      - DATABASE_URL=postgresql://ragwatson:ragwatson@db:5432/ragwatson
+      # Docker 로컬 3-DB (Neon .env보다 우선)
+      - DATABASE_URL=postgresql+psycopg_async://ragwatson:ragwatson@pgvector:5432/ragwatson
+      - REDIS_URL=redis://redis:6379/0
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=ragwatson
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/automata
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
     env_file:
       - ./backend/.env
     depends_on:
-      db:
+      pgvector:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
         condition: service_healthy
 
   # 프론트엔드 서비스 설정
@@ -76,5 +127,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  pgvector_data:
+  redis_data:
+  neo4j_data:
   n8n_data:

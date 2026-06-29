@@ -1,0 +1,136 @@
+[
+  {
+    "id": "automata-gmail-send-001",
+    "name": "Automata Gmail Send",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "automata",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "webhook-node-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [240, 300],
+        "webhookId": "automata-webhook-prod"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "cond-1",
+                "leftValue": "={{ $json.body.workflow || $json.workflow }}",
+                "rightValue": "gmail-send",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "if-node-1",
+        "name": "IF gmail-send",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [480, 300]
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $json.body.to || $json.to }}",
+          "subject": "={{ $json.body.subject || $json.subject }}",
+          "message": "={{ $json.body.body || $json.body }}",
+          "options": {}
+        },
+        "id": "gmail-node-1",
+        "name": "Gmail Send",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [720, 220]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { \"ok\": true, \"messageId\": $json.id } }}",
+          "options": {}
+        },
+        "id": "respond-ok-1",
+        "name": "Respond OK",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [960, 220]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { \"ok\": false, \"error\": \"unknown workflow\" } }}",
+          "options": {
+            "responseCode": 400
+          }
+        },
+        "id": "respond-skip-1",
+        "name": "Respond Skip",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [720, 400]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "IF gmail-send",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF gmail-send": {
+        "main": [
+          [
+            {
+              "node": "Gmail Send",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Skip",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail Send": {
+        "main": [
+          [
+            {
+              "node": "Respond OK",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "active": false
+  }
+]
