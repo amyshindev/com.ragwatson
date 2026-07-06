@@ -6,12 +6,15 @@ ExaONE이 작성한 메일을 Gmail로 발송하는 n8n 워크플로입니다.
 
 n8n 2.x는 JSON 배열 형식 + `id` 필드 + `--projectId`가 필요합니다.
 
+> **참고:** `n8n list:project` 는 n8n 2.27.x 에 없습니다. PROJECT_ID는 DB 조회로 확인하세요:
+> `docker run --rm -v comragwatson_n8n_data:/data alpine sh -c "apk add --no-cache sqlite >/dev/null && sqlite3 -header -column /data/database.sqlite 'SELECT id, name FROM project;'"`
+
 ```bash
 docker stop n8n
 docker run --rm --entrypoint n8n \
   -v comragwatson_n8n_data:/home/node/.n8n \
   -v ./n8n/workflows/automata-gmail-import-array.json:/tmp/import.json:ro \
-  n8nio/n8n import:workflow --input=/tmp/import.json --projectId=<YOUR_PROJECT_ID>
+  n8nio/n8n import:workflow --input=/tmp/import.json --projectId=twiOq01ZuQGyJOrB
 docker run --rm --entrypoint n8n -v comragwatson_n8n_data:/home/node/.n8n \
   n8nio/n8n publish:workflow --id=automata-gmail-send-001
 docker start n8n

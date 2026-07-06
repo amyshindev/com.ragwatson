@@ -50,7 +50,8 @@
         "parameters": {
           "sendTo": "={{ $json.body.to || $json.to }}",
           "subject": "={{ $json.body.subject || $json.subject }}",
-          "message": "={{ $json.body.body || $json.body }}",
+          "emailType": "html",
+          "message": "={{ $json.body.body_html || $json.body.body || $json.body }}",
           "options": {}
         },
         "id": "gmail-node-1",

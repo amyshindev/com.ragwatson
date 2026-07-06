@@ -1,0 +1,125 @@
+[
+  {
+    "id": "automata-gmail-inbound-001",
+    "name": "Automata Gmail Inbound",
+    "nodes": [
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "filters": {}
+        },
+        "id": "gmail-trigger-1",
+        "name": "Gmail Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.2,
+        "position": [240, 300]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "map-message-id",
+                "name": "message_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "map-from",
+                "name": "from",
+                "value": "={{ $json.from?.text || $json.from || '' }}",
+                "type": "string"
+              },
+              {
+                "id": "map-from-name",
+                "name": "from_name",
+                "value": "={{ $json.from?.name || '' }}",
+                "type": "string"
+              },
+              {
+                "id": "map-subject",
+                "name": "subject",
+                "value": "={{ $json.subject || '' }}",
+                "type": "string"
+              },
+              {
+                "id": "map-body",
+                "name": "body",
+                "value": "={{ $json.text || $json.textPlain || $json.snippet || '' }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "set-fields-1",
+        "name": "Map Mail Fields",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [480, 300]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $env.AUTOMATA_BACKEND_URL || 'http://backend:8000' }}/automata/inbound/mail",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Automata-Inbound-Secret",
+                "value": "={{ $env.AUTOMATA_INBOUND_SECRET || '' }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ { message_id: $json.message_id, from: $json.from, from_name: $json.from_name, subject: $json.subject, body: $json.body } }}",
+          "options": {}
+        },
+        "id": "http-backend-1",
+        "name": "POST Homepage API",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [720, 300]
+      }
+    ],
+    "connections": {
+      "Gmail Trigger": {
+        "main": [
+          [
+            {
+              "node": "Map Mail Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map Mail Fields": {
+        "main": [
+          [
+            {
+              "node": "POST Homepage API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "active": false
+  }
+]
